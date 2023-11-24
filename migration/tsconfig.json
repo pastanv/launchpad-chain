@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "baseUrl": "../src"
+
+    // ts-migrate-mongoose imports the migration files dynamically and compiles them
+    // on the fly. So while we compile migrate.ts and its references as part of the build
+    // step, we don't compile the migration files - they are instead compiled by
+    // ts-migrate-mongoose during runtime.
+    //
+    // As this is the case, we cannot use an outDir option for compilation. While migrate.js
+    // and its references would get emitted to ./build, the migration files are compiled outside
+    // of the build directory. So any shared imports between migrate.ts and the migration files
+    // would not a return a singleton as each import statement would cache the module with a
+    // different absolute path.
+    //
+    // This is frustrating when testing migrations because the build step will emit all the .js
+    // files alongisde their .ts file
+    //
+    // "outDir": "./build"
+  },
+
+  // While ts-migrate-mongoose imports the migration files dynamically and compiles them
+  // during runtime, it does not compile the files' references in this process. So we need
+  // to pre-compile schemas for the build to work
+  "include": ["./migrate.ts", "../src/db/schemas"]
+}
